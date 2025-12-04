@@ -15,8 +15,8 @@ RUN sed -i -e "s|http://archive.ubuntu.com|http://jp.archive.ubuntu.com|g" /etc/
       libc6-dev \
  && rm -rf /var/lib/apt/lists/*
 
-ARG USERNAME=jupyter
-ARG GROUPNAME=jupyter
+ARG USERNAME=admin
+ARG GROUPNAME=admin
 ARG UID=1001
 ARG GID=1001
 
@@ -51,7 +51,7 @@ ENV PATH=$HADOOP_HOME/sbin:$HADOOP_HOME/bin:$PATH
 ENV LD_LIBRARY_PATH=$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH
 
 # Spark
-ARG SPARK_VERSION=3.5.3
+ARG SPARK_VERSION=3.5.2
 ARG SPARK_URL=https://archive.apache.org/dist/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop3.tgz
 ENV SPARK_HOME=/opt/spark
 
@@ -72,8 +72,17 @@ ENV PYSPARK_PYTHON=python3
 ENV SPARK_CONF_DIR=$SPARK_HOME/conf
 ENV PATH=$SPARK_HOME/sbin:$SPARK_HOME/bin:$PATH
 
+# Iceberg Spark
+ARG ICEBERG_VERSION=1.9.2
+ENV ICEBERG_HOME=/opt/iceberg
+RUN curl -fsSL https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-3.5_2.12/$ICEBERG_VERSION/iceberg-spark-runtime-3.5_2.12-$ICEBERG_VERSION.jar \
+    -o $SPARK_HOME/jars/iceberg-spark-runtime-3.5_2.12-$ICEBERG_VERSION.jar
+    
+ENV SPARK_CLASSPATH=$SPARK_HOME/jars/iceberg-spark-runtime-3.5_2.12-$ICEBERG_VERSION.jar:$SPARK_CLASSPATH
+
+
 # Hive
-ARG HIVE_VERSION=3.1.3
+ARG HIVE_VERSION=4.2.0
 ARG HIVE_URL=https://archive.apache.org/dist/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz
 ENV HIVE_HOME=/opt/hive
 
